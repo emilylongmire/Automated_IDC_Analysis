@@ -6,7 +6,7 @@ import pandas as pd
 import os
 
 # create an empty data frame with the necessary columns
-image_data=pd.DataFrame(columns=["board_id","voltage","solution","concentration"])
+image_data=pd.DataFrame(columns=["board_id","voltage","solution","concentration (mM)","pH"])
 
 # use IDCSubmersion.csv as the file to add the data to
 data_file_path="IDCSubmersion.csv"
@@ -26,17 +26,20 @@ def get_image_names_and_data(data_file_path):
     voltage_level=int(input("\nChoose voltage level\n"
                             "Type 3 or 5:\n"))
 
+    # fix
     #if voltage_level!=3 or voltage_level!=5:
         #print("\nInvalid voltage level - please type 3 or 5\n")
         #voltage_level = int(input())
 
     solution_type=str(input("\nEnter the solution type:\n"))
 
-    solution_concentration=int(input("\nEnter the solution concentration:\n"))
+    solution_concentration=float(input("\nEnter the solution concentration:\n"))
+
+    pH=int(input("\nEnter the pH:\n"))
 
     # create a dictionary for image data
     info={"board_id" : [board_id], "voltage" : [voltage_level], "solution" : [solution_type],
-          "concentration": [solution_concentration]}
+          "concentration (mM)": [solution_concentration], "pH" : [pH]}
 
     # store information in data frame
     new_data=pd.DataFrame(info)
