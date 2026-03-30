@@ -11,6 +11,7 @@ source_data = source_data.sort_values("timestamp")
 for cam_index in range(4):
 
     frames = pd.read_csv(f"cam{cam_index}_timestamps.csv")
+    frames["timestamp"]=frames["timestamp"].astype(float)
     frames = frames.sort_values("timestamp")
 
     linked_devices = []
@@ -26,11 +27,10 @@ for cam_index in range(4):
 
         merged = merged.rename(columns={"timestamp": "frame_timestamp"})
 
-        closest_source_times = device_data["timestamp"].iloc[
-            (device_data["timestamp"].values[:, None] - frames["timestamp"].values).argmin(axis=0)]
-
-        merged["source_timestamp"] = closest_source_times.values
-        merged["time_delta_ms"] =(abs(merged["frame_timestamp"] - merged["source_timestamp"]) * 1000)
+        merged["source_timestamp"]=merged["frame_timestamp"].apply(
+            lambda t: device_data["timestamp"].iloc[(device_data["timestamp"]-t).abs().argmin()]
+        )
+        merged["time_delta_ms"]=(merged["frame_timestamp"]-merged["source_timestamp"]).abs()*1000
 
         linked_devices.append(merged)
 

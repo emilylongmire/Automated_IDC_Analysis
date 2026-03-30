@@ -8,7 +8,6 @@ import threading
 import cv2
 import time
 from queue import Queue
-from picamera2 import Picamera2
 import os
 
 # Pre-Submersion -------------------------------------------------------------------------------------------------------
@@ -63,22 +62,26 @@ def instrument_thread(device_name, device_index, data_queue, voltage, stop_event
 def camera_thread(cam_index, stop_event):
 
     # initialize camera and start
-    cam = Picamera2(cam_index)
-    cam.start()
+    cam = cv2.VideoCapture(cam_index)
+    cam.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
+
+    if not cam.isOpened():
+        print("Camera not opened")
+        return
 
     os.makedirs(f"cam{cam_index}_frames", exist_ok=True)
     frame_index = 0
-
     window_name = f"Camera {cam_index}"
-
     frame_timestamps = []
 
     # continue recording unless stopped by keyboard
     while not stop_event.is_set():
-        frame = cam.capture_array()
+        ret, frame = cam.read()
 
-        # ensure frame is in color
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        if not ret:
+            print("Camera failed to capture frame")
+            break
 
         # save frame in correct resolution
         frame = cv2.resize(frame, resolution)
@@ -90,14 +93,9 @@ def camera_thread(cam_index, stop_event):
 
         cv2.imshow(window_name, frame)
 
-        # if q is pressed, stop
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            stop_event.set()
-            break
-
     pd.DataFrame(frame_timestamps).to_csv(f"cam{cam_index}_timestamps.csv", index=False)
     
-    cam.stop()
+    cam.release()
     cv2.destroyWindow(window_name)
 
 # stop threading
