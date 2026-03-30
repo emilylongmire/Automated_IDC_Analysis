@@ -6,7 +6,7 @@ import pandas as pd
 import os
 
 # create an empty data frame with the necessary columns
-image_data=pd.DataFrame(columns=["board_id","sensor","voltage","solution","concentration (mM)","pH"])
+image_data=pd.DataFrame(columns=["board_id","board_material","sensor","voltage","solution","concentration (mM)","pH"])
 
 # use IDCSubmersion.csv as the file to add the data to
 data_file_path="IDCSubmersion.csv"
@@ -24,8 +24,8 @@ def get_image_names_and_data(data_file_path):
     voltage_level=0
 
     # input voltage level choice
-    while (voltage_level != 3) & (voltage_level != 5):
-        voltage_level=int(input("\nChoose voltage level\n Must be 3 or 5:\n"))
+    #while (voltage_level != 3) & (voltage_level != 5):
+    #    voltage_level=int(input("\nChoose voltage level\n Must be 3 or 5:\n"))
 
     # input solution type choice
     solution_choice=int(input("\nChoose one of the following solutions:\n"
