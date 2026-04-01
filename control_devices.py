@@ -28,8 +28,8 @@ cameras = 4
 # potentially change device names to be more specific
 source_meter_names = ["source_meter_1", "source_meter_2"]
 
-# change
-resolution = (8000, 8000)
+# change to higher, lower resolution for testing
+resolution = (3000, 3000)
 
 # set to 1 frame per second
 fps = 1
@@ -83,15 +83,15 @@ def camera_thread(cam_index, stop_event):
             print("Camera failed to capture frame")
             break
 
-        # save frame in correct resolution
-        frame = cv2.resize(frame, resolution)
-
         frame_timestamps.append({"cam_index": cam_index, "frame_index": frame_index, "timestamp": time.time()})
 
         cv2.imwrite(f"cam{cam_index}_frames/frame_{frame_index:05d}.jpg", frame)
         frame_index += 1
 
         cv2.imshow(window_name, frame)
+
+        # 1 fps
+        time.sleep(1.0/fps)
 
     pd.DataFrame(frame_timestamps).to_csv(f"cam{cam_index}_timestamps.csv", index=False)
     
@@ -125,12 +125,16 @@ try:
         while not data_queue.empty():
             entry = data_queue.get()
             source_meter_data.append(entry)
+        cv2.waitKey(1)
         time.sleep(0.05)
 
 except KeyboardInterrupt:
     print("Cancelling...")
     stop_event.set()
 
+    # drain remaining queue items
+    while not data_queue.empty():
+        source_meter_data.append(data_queue.get())
 
 for t in camera_threads:
     t.join(timeout=5)
