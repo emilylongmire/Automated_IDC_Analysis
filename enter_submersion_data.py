@@ -6,7 +6,7 @@ import pandas as pd
 import os
 
 # create an empty data frame with the necessary columns
-image_data=pd.DataFrame(columns=["board_id","board_material","sensor","voltage","solution","concentration (mM)","pH"])
+image_data=pd.DataFrame(columns=["board_id","sensor","voltage","solution","concentration (mM)","pH"])
 
 # use IDCSubmersion.csv as the file to add the data to
 data_file_path="IDCSubmersion.csv"
